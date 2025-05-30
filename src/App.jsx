@@ -46,7 +46,7 @@ function App() {
   return (
     <div className="container">
       <h1>Gemini AI Interface</h1>
-      <p>Create anything you want with the power of AI</p>
+      <p>Create anything you want</p>
 
       <label>Gemini API Key</label>
       <input
@@ -62,7 +62,7 @@ function App() {
 
       <label>What do you want to do?</label>
       <textarea
-        placeholder="Describe what you'd like to build..."
+        placeholder="Describe what you'd like to do..."
         value={input}
         onChange={(e) => setInput(e.target.value)}
       />
@@ -72,7 +72,7 @@ function App() {
       {response && (
         <div className="response">
           <h3>Response</h3>
-          <pre>{response}</pre>
+          <h6>{response}</h6>
         </div>
       )}
     </div>
