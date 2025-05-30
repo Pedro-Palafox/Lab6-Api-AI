@@ -1,35 +1,82 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import './App.css';
+import axios from 'axios';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [apiKey, setApiKey] = useState('');
+  const [input, setInput] = useState('');
+  const [response, setResponse] = useState('');
+  const [showKey, setShowKey] = useState(false);
+
+  const handleSend = async () => {
+    if (!apiKey) {
+      alert('Por favor ingresa tu API Key de Gemini');
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        {
+          contents: [
+            {
+              parts: [
+                {
+                  text: input,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const result = res.data.candidates?.[0]?.content?.parts?.[0]?.text || 'No se recibió respuesta.';
+      setResponse(result);
+    } catch (error) {
+      console.error(error);
+      setResponse(`Error: ${error.response?.data?.error?.message || error.message}`);
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="container">
+      <h1>Gemini AI Interface</h1>
+      <p>Create anything you want with the power of AI</p>
+
+      <label>Gemini API Key</label>
+      <input
+        type={showKey ? 'text' : 'password'}
+        placeholder="Enter your Gemini API key here"
+        value={apiKey}
+        onChange={(e) => setApiKey(e.target.value)}
+      />
+      <button className="show-btn" onClick={() => setShowKey(!showKey)}>
+        {showKey ? 'Hide' : 'Show'}
+      </button>
+      <p className="note">Your API key is stored locally in your browser and never sent to our servers.</p>
+
+      <label>What do you want to do?</label>
+      <textarea
+        placeholder="Describe what you'd like to build..."
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+      />
+
+      <button className="send-btn" onClick={handleSend}>Ask</button>
+
+      {response && (
+        <div className="response">
+          <h3>Response</h3>
+          <pre>{response}</pre>
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default App
+export default App;
